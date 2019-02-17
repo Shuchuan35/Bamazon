@@ -4,8 +4,8 @@ $(document).ready(function () {
     // $('#product-details').empty();
     console.log('render');
     for (let i = 0; i < products.length; i++) {
-      console.log(`${products[i].name}`);
-      const productRow = $('<tr>');
+      // console.log(`${products[i].name}`);
+      const productRow = $('<tr>').addClass('productRow');
 
       const qtyCol = $('<th>');
       qtyCol.append(`<input type="text" id="qtyRow${i+1}">`);
@@ -24,8 +24,9 @@ $(document).ready(function () {
       productRow.append(avilQtyCol);
 
       const cartCol = $('<td>');
-      const cartButton = $('<button>').addClass('btn btn-warning');
+      const cartButton = $('<button>').addClass('btn btn-warning cart');
       cartButton.attr('cart-name', `cart${i+1}`);
+      cartButton.attr('product-id', `${products[i].id}`);
       cartButton.text('Add to Cart');
       cartCol.append(cartButton);
       productRow.append(cartCol);
@@ -44,11 +45,7 @@ $(document).ready(function () {
 
   const getProducts = function () {
     console.log('getProducts');
-    // $.get('/api/products')
-    // .then(function (data){
-    //   console.log(data);
-    //   render(data);
-    // })
+   
     $.ajax({
       method: 'GET',
       url: 'api/products'
@@ -58,15 +55,17 @@ $(document).ready(function () {
     });
   }
   getProducts();
-
-  const addToCart = function (e) {
-    e.preventDefault();
-    console.log('Hi Cart');
+  
+  const addToCart = function() {
+    const productId = $(this).attr('product-id');
     const cartVal = $(this).attr('cart-name');
-    console.log(cartVal);
+    const qtyRow = `qtyRow${cartVal.substring(4)}`;
+    const qtyVal =  $(`#${qtyRow}`).val();
+    console.log('product id: '+ productId);
+    console.log('qty: ' + qtyVal);
   }
-  // $('.btn').on('click', addToCart);
-  $('.btn').on('click', addToCart);
+ 
+  $(this).on('click', '.cart', addToCart);
 
 });
 
