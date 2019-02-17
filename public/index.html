@@ -20,7 +20,7 @@
     <a class="navbar-brand">Bamazon</a>
     <form class="form-inline">
       <!-- Button trigger modal -->
-      <button type="button" class="btn btn-outline-info my-2 my-sm-0" id="submit" data-toggle="modal"
+      <button type="button" class="btn btn-outline-info my-2 my-sm-0" id="viewCart" data-toggle="modal"
         data-target="#cart-modal">View Cart</button>
     </form>
   </nav>
@@ -37,12 +37,6 @@
         </tr>
       </thead>
       <tbody id="product-details">
-        <!-- <tr>
-                <th scope="row">1</th>
-                <td>Product Name</td>
-                <td>Price</td>
-                <td>Available Qty</td>
-              </tr> -->
       </tbody>
     </table>
   </div>
@@ -56,11 +50,29 @@
           <button class="close float-right" data-dismiss="modal">x</button>
         </div>
         <div class="modal-body">
-          <h2 id="purchase-view">some product info</h2>
+            <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="purchase-order">
+                <!--  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                  </tr> -->
+                </tbody>
+              </table>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Save changes</button>
-          <button class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Place the Order</button>
+          <button class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>

@@ -1,14 +1,14 @@
 $(document).ready(function () {
-
+  const purchaseOrder = [];
   const render = function (products) {
     // $('#product-details').empty();
-    console.log('render');
+  
     for (let i = 0; i < products.length; i++) {
       // console.log(`${products[i].name}`);
       const productRow = $('<tr>').addClass('productRow');
 
       const qtyCol = $('<th>');
-      qtyCol.append(`<input type="text" id="qtyRow${i+1}">`);
+      qtyCol.append(`<input type="text" id="qtyRow${i + 1}">`);
       productRow.append(qtyCol);
 
       const productCol = $('<td>');
@@ -25,7 +25,7 @@ $(document).ready(function () {
 
       const cartCol = $('<td>');
       const cartButton = $('<button>').addClass('btn btn-warning cart');
-      cartButton.attr('cart-name', `cart${i+1}`);
+      cartButton.attr('cart-name', `cart${i + 1}`);
       cartButton.attr('product-id', `${products[i].id}`);
       cartButton.text('Add to Cart');
       cartCol.append(cartButton);
@@ -44,8 +44,8 @@ $(document).ready(function () {
   }
 
   const getProducts = function () {
-    console.log('getProducts');
-   
+    // console.log('getProducts');
+
     $.ajax({
       method: 'GET',
       url: 'api/products'
@@ -55,18 +55,39 @@ $(document).ready(function () {
     });
   }
   getProducts();
+
+  const viewPurchaseOrder = function() {
+    console.log(purchaseOrder);
+  }
   
-  const addToCart = function() {
+  const addPurchaseItem = function (productId, qtyVal) {
+    $.get(`/api/products/${productId}`)
+      .then(function (data) {
+        console.log(data.name);
+        console.log(data.price);
+        console.log(data.avail_quantity);
+        const purchaseItem = {
+          qty: qtyVal,
+          item: data.name,
+          price: data.price,
+          total: qtyVal * data.price
+        }
+        purchaseOrder.push(purchaseItem);
+      })
+  }
+
+  const addToCart = function () {
     const productId = $(this).attr('product-id');
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
-    const qtyVal =  $(`#${qtyRow}`).val();
-    console.log('product id: '+ productId);
-    console.log('qty: ' + qtyVal);
+    const qtyVal = $(`#${qtyRow}`).val();
+    // console.log('product id: '+ productId);
+    // console.log('qty: ' + qtyVal);
+    addPurchaseItem(productId, qtyVal);
   }
- 
-  $(this).on('click', '.cart', addToCart);
 
+  $(this).on('click', '.cart', addToCart);
+  $('#viewCart').on('click', viewPurchaseOrder);
 });
 
 
