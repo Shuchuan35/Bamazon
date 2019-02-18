@@ -1,7 +1,7 @@
 $(document).ready(function () {
   const purchaseOrder = [];
   const render = function (products) {
-    // $('#product-details').empty();
+    $('#product-details').empty();
 
     for (let i = 0; i < products.length; i++) {
       // console.log(`${products[i].name}`);
@@ -45,13 +45,67 @@ $(document).ready(function () {
   }
   getAllProducts();
 
-  const validateOrder = function() {
-    console.log('Hi');
+  // const validateOrder = function() {
+  //   const poIds = [];
+  //   for (let i = 0; i < purchaseOrder.length; i++) {
+  //     poIds.push(purchaseOrder[i].id);
+  //   }
+  //   console.log('poIds: ' + typeof(poIds));
+  //   $.get(`/api/products/${poIds}`)
+  //   .then(function (data) {
+  //     // console.log('poIds: ' + poIds);
+  //     console.log(data);
+  //     for (let i = 0; i < purchaseOrder.length; i++) {
+  //       for (let j in data) {
+  //         if (data[j].id == purchaseOrder[i].id) {
+
+  //       }
+  //       }
+  //     }
+  //   });
+  // }
+
+  const updateProductQty = function (pId, newProductData) {
+    // console.log(newUserData);
+    $.ajax({
+      method: 'PUT',
+      url: `/api/products/${pId}`,
+      data: newProductData
+    })
+  }
+  const validateOrder = function (e) {
+    e.preventDefault();
+    // const poIds = [];
+    for (let i = 0; i < purchaseOrder.length; i++) {
+      // poIds.push(purchaseOrder[i].id);
+      $.get(`/api/product/${purchaseOrder[i].id}`)
+        .then(function (data) {
+          const newQty = data.avail_quantity - purchaseOrder[i].qty;
+          const newProductData = {
+            name: data.name,
+            department: data.department,
+            price: data.price,
+            avail_quantity: newQty
+          };
+          if (newQty >= 0) {
+            updateProductQty(purchaseOrder[i].id, newProductData);
+            getAllProducts();
+            $('#po-results').addClass('alert alert-info');
+            $('#po-results').text('Thank you for your order! Please see email for shipping details!');
+          } else {
+            $('#po-results').removeClass('alert alert-info');
+            $('#po-results').addClass('alert alert-danger');
+            $('#po-results').text('Insufficient quantity!');
+          }
+
+        });
+
+    }
   }
 
   const viewCart = function () {
     $('#purchase-order').empty();
-  
+
     for (let i = 0; i < purchaseOrder.length; i++) {
       $('#purchase-order').append(`<tr>
       <th scope="row">${i + 1}</th>
@@ -64,7 +118,7 @@ $(document).ready(function () {
   }
 
   const addPurchaseItem = function (productId, qtyVal) {
-    $.get(`/api/products/${productId}`)
+    $.get(`/api/product/${productId}`)
       .then(function (data) {
         const purchaseItem = {
           id: productId,
@@ -104,7 +158,7 @@ $(document).ready(function () {
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
     const qtyVal = $(`#${qtyRow}`).val();
-    
+
     addPurchaseItem(productId, qtyVal);
   }
 

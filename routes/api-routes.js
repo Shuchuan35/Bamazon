@@ -1,32 +1,44 @@
 const db = require('../models');
+const Op = db.Sequelize.Op;
 
 // Routes
 module.exports = function (app) {
   console.log('Hi there!...');
   // GET route for getting all of the products
   app.get('/api/products', function (req, res) {
-    // db.Product.findAll({}).then(function (data) {
-    //   console.log(JSON.stringify(data, null, 2));
-      
-    // }).catch(function (error) {
-    //   console.log('Error:', error);
-    // });
-    
     db.Product.findAll({}).then(function (dbProduct) {
       console.log('=======findAll===========');
       res.json(dbProduct);
     }).catch(function (error) {
       res.json({ error: error });
     });
-
   });
 
-  app.get('/api/products/:id', function (req, res) {
+  app.get('/api/products/:ids', function (req, res) {
+    const param = req.param('ids');
+    console.log('=======param=======');
+    console.log(param);
+    db.Product.findAll({
+      where: {
+        id:{
+          [Op.in]: [req.param("ids")]
+        }
+      }
+    }).then(function (dbProduct) {
+      console.log('=======findAll id IN array===========');
+      res.json(dbProduct);
+    }).catch(function (error) {
+      res.json({ error: error });
+    });
+  });
+
+  app.get('/api/product/:id', function (req, res) {
     db.Product.findOne({
       where: {
         id: req.params.id
       }
     }).then(function (dbProduct) {
+      console.log('=======findOne===========');
       res.json(dbProduct);
     }).catch(function (error) {
       res.json({ error: error });
