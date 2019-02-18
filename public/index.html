@@ -20,7 +20,7 @@
     <a class="navbar-brand">Bamazon</a>
     <form class="form-inline">
       <!-- Button trigger modal -->
-      <button type="button" class="btn btn-outline-info my-2 my-sm-0" id="viewCart" data-toggle="modal"
+      <button type="button" class="btn btn-outline-info my-2 my-sm-0" id="view-cart" data-toggle="modal"
         data-target="#cart-modal">View Cart</button>
     </form>
   </nav>
@@ -46,7 +46,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Purchase Details</h5>
+          <h5 class="modal-title">View Purchase Order</h5>
           <button class="close float-right" data-dismiss="modal">x</button>
         </div>
         <div class="modal-body">
@@ -61,18 +61,12 @@
                   </tr>
                 </thead>
                 <tbody id="purchase-order">
-                <!--  <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                  </tr> -->
                 </tbody>
               </table>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Place the Order</button>
-          <button class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
+          <!-- <button type="button" class="btn btn-primary">Place the Order</button> -->
+          <button id="place-order" class="btn btn-info btn-sm" data-dismiss="modal">Place the Order</button>
         </div>
       </div>
     </div>

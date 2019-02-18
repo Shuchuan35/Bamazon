@@ -2,7 +2,7 @@ $(document).ready(function () {
   const purchaseOrder = [];
   const render = function (products) {
     // $('#product-details').empty();
-  
+
     for (let i = 0; i < products.length; i++) {
       // console.log(`${products[i].name}`);
       const productRow = $('<tr>').addClass('productRow');
@@ -32,48 +32,71 @@ $(document).ready(function () {
       productRow.append(cartCol);
 
       $('#product-details').append(productRow);
-
-      // $('#product-details').append(`<tr>
-      // <th><input type="text" id="inputQty"></th>
-      // <td>${products[i].name}</td>
-      // <td>${products[i].price}</td>
-      // <td>${products[i].avail_quantity}</td>
-      // <td><button type="button" class="btn btn-warning">Add to Cart</button></td>
-      // </tr>`);
     }
   }
 
-  const getProducts = function () {
-    // console.log('getProducts');
-
+  const getAllProducts = function () {
     $.ajax({
       method: 'GET',
       url: 'api/products'
     }).then(function (res) {
-      // console.log(res);
       render(res);
     });
   }
-  getProducts();
+  getAllProducts();
 
-  const viewPurchaseOrder = function() {
-    console.log(purchaseOrder);
+  const validateOrder = function() {
+    console.log('Hi');
   }
+
+  const viewCart = function () {
+    $('#purchase-order').empty();
   
+    for (let i = 0; i < purchaseOrder.length; i++) {
+      $('#purchase-order').append(`<tr>
+      <th scope="row">${i + 1}</th>
+      <td>${purchaseOrder[i].qty}</td>
+      <td>${purchaseOrder[i].item}</td>
+      <td>${purchaseOrder[i].price}</td>
+      <td>${purchaseOrder[i].total}</td>
+      </tr>`);
+    }
+  }
+
   const addPurchaseItem = function (productId, qtyVal) {
     $.get(`/api/products/${productId}`)
       .then(function (data) {
-        console.log(data.name);
-        console.log(data.price);
-        console.log(data.avail_quantity);
         const purchaseItem = {
+          id: productId,
           qty: qtyVal,
           item: data.name,
           price: data.price,
           total: qtyVal * data.price
         }
-        purchaseOrder.push(purchaseItem);
-      })
+        const idList = [];
+        let oldQty = 0;
+        for (let i = 0; i < purchaseOrder.length; i++) {
+          idList.push(purchaseOrder[i].id);
+        }
+        if (!idList.includes(productId)) {
+          purchaseOrder.push(purchaseItem);
+        } else {
+          for (let i in purchaseOrder) {
+            if (purchaseOrder[i].id == productId) {
+              oldQty = purchaseOrder[i].qty;
+              const combineQty = parseInt(qtyVal) + parseInt(oldQty);
+              const newTotal = combineQty * data.price;
+              purchaseOrder.splice(i, 1, {
+                id: productId,
+                qty: combineQty,
+                item: data.name,
+                price: data.price,
+                total: newTotal.toFixed(2)
+              });
+            }
+          }
+        }
+      });
   }
 
   const addToCart = function () {
@@ -81,13 +104,13 @@ $(document).ready(function () {
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
     const qtyVal = $(`#${qtyRow}`).val();
-    // console.log('product id: '+ productId);
-    // console.log('qty: ' + qtyVal);
+    
     addPurchaseItem(productId, qtyVal);
   }
 
   $(this).on('click', '.cart', addToCart);
-  $('#viewCart').on('click', viewPurchaseOrder);
+  $('#view-cart').on('click', viewCart);
+  $('#place-order').on('click', validateOrder);
 });
 
 
