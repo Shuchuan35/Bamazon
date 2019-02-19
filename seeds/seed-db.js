@@ -48,7 +48,7 @@ db.sequelize.sync().then(function() {
     price: 82.99,
     avail_quantity: 100
   },{
-    name: 'Alex Toys Artist Studio My Art Dest',
+    name: 'Alex Toys Artist Studio My Art Desk',
     department: 'Children',
     price: 310.00,
     avail_quantity: 100
