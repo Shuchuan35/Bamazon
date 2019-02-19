@@ -3,7 +3,7 @@ const Op = db.Sequelize.Op;
 
 // Routes
 module.exports = function (app) {
-  console.log('Hi there!...');
+  // console.log('Hi there!...');
   // GET route for getting all of the products
   app.get('/api/products', function (req, res) {
     db.Product.findAll({}).then(function (dbProduct) {

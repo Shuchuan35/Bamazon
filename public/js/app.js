@@ -51,73 +51,63 @@ $(document).ready(function () {
     for (let i = 0; i < purchaseOrder.length; i++) {
       purchaseOrder.pop();
     }
+    setIsFillOrder(true);
   }
 
-  const updateInventoryQty = function (pId, newProductData) {
+  const updateInventoryQty = function (pId, newData) {
+    // $.put(`/api/products/${pId}`, newData)
+    //   .then(function (data) {
+    //     getAllProducts();
+    //   });
+
     $.ajax({
       method: 'PUT',
       url: `/api/products/${pId}`,
-      data: newProductData
-    })
+      data: newData
+    }).then(function(data){
+      getAllProducts();
+    });
+  }
+
+
+  const fillOrder = function () {
+    for (let i = 0; i < purchaseOrder.length; i++) {
+      const poId = purchaseOrder[i].id;
+      const poQty = purchaseOrder[i].qty;
+      $.get(`/api/product/${poId}`)
+        .then(function (data) {
+          const newQty = parseInt(data.avail_quantity) - parseInt(poQty);
+          // totalPrice = parseInt(totalPrice) + parseFloat(purchaseOrder[i].total);
+          const newProductData = {
+            name: data.name,
+            department: data.department,
+            price: data.price,
+            avail_quantity: newQty
+          };
+          updateInventoryQty(poId, newProductData);
+        });
+    }
   }
 
   const validateOrder = function (e) {
     e.preventDefault();
     if (isFillOrder) {
-      for (let i = 0; i < purchaseOrder.length; i++) {
-        // poIds.push(purchaseOrder[i].id);
-        $.get(`/api/product/${purchaseOrder[i].id}`)
-          .then(function (data) {
-            const newQty = data.avail_quantity - purchaseOrder[i].qty;
-            const newProductData = {
-              name: data.name,
-              department: data.department,
-              price: data.price,
-              avail_quantity: newQty
-            };
-            updateInventoryQty(purchaseOrder[i].id, newProductData);
-            getAllProducts();
-          });
-      }
+      fillOrder();
+      $('#po-results').removeClass('alert alert-danger');
       $('#po-results').addClass('alert alert-info');
-      $('#po-results').text('Thank you for your order! Please see email for shipping details!');
+      $('#po-results').text(`Thank you for your order! Please see email for shipping details!`);
+      clearPurchaseOrder();
+
     } else {
       $('#po-results').removeClass('alert alert-info');
       $('#po-results').addClass('alert alert-danger');
       $('#po-results').text('Insufficient quantity!');
+      clearPurchaseOrder();
     }
-    clearPurchaseOrder();
   }
 
-  const fillOrder = function () {
-    if (isFillOrder) {
-      for (let i = 0; i < purchaseOrder.length; i++) {
-        $.get(`/api/product/${purchaseOrder[i].id}`)
-          .then(function (data) {
-            const newQty = data.avail_quantity - purchaseOrder[i].qty;
-            totalPrice = parseInt(totalPrice) + parseFloat(purchaseOrder[i].total);
-            const newProductData = {
-              name: data.name,
-              department: data.department,
-              price: data.price,
-              avail_quantity: newQty
-            };
-            updateInventoryQty(purchaseOrder[i].id, newProductData);
-          });
-      }
-      console.log(totalPrice);
-      $('#po-results').addClass('alert alert-info');
-      $('#po-results').text(`Thank you for your order! Your purchase total is: $${totalPrice}. Please see email for shipping details!`);
-      getAllProducts();
-    } else {
-      $('#po-results').removeClass('alert alert-info');
-      $('#po-results').addClass('alert alert-danger');
-      $('#po-results').text('Insufficient quantity!');
-    }
-    clearPurchaseOrder();
-  }
-
-  const viewCart = function () {
+  const viewCart = function (e) {
+    e.preventDefault();
     $('#purchase-order').empty();
 
     for (let i = 0; i < purchaseOrder.length; i++) {
@@ -131,8 +121,8 @@ $(document).ready(function () {
     }
   }
 
-  const setIsFillOrderToFalse = function () {
-    isFillOrder = false;
+  const setIsFillOrder = function (fill) {
+    isFillOrder = fill;
   }
 
   const addCartItem = function (productId, qtyVal) {
@@ -146,7 +136,7 @@ $(document).ready(function () {
           total: qtyVal * data.price
         }
         if (data.avail_quantity < qtyVal) {
-          setIsFillOrderToFalse();
+          setIsFillOrder(false);
         }
         const idList = [];
         let oldQty = 0;
@@ -174,7 +164,8 @@ $(document).ready(function () {
       });
   }
 
-  const addToCart = function () {
+  const addToCart = function (e) {
+    e.preventDefault();
     const productId = $(this).attr('product-id');
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
