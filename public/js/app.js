@@ -48,10 +48,11 @@ $(document).ready(function () {
   getAllProducts();
 
   const clearPurchaseOrder = function () {
-    for (let i = 0; i < purchaseOrder.length; i++) {
+    for (let i = purchaseOrder.length; i > 0; i--) {
       purchaseOrder.pop();
     }
     setIsFillOrder(true);
+    // console.log('purchaseOrder item: ' + purchaseOrder.length);
   }
 
   const updateInventoryQty = function (pId, newData) {
@@ -97,7 +98,6 @@ $(document).ready(function () {
       $('#po-results').addClass('alert alert-info');
       $('#po-results').text(`Thank you for your order! Please see email for shipping details!`);
       clearPurchaseOrder();
-
     } else {
       $('#po-results').removeClass('alert alert-info');
       $('#po-results').addClass('alert alert-danger');
@@ -121,6 +121,10 @@ $(document).ready(function () {
     }
   }
 
+  const addToTotalPrice = function(price) {
+    totalPrice += parseInt(price);
+  }
+
   const setIsFillOrder = function (fill) {
     isFillOrder = fill;
   }
@@ -128,18 +132,16 @@ $(document).ready(function () {
   const addCartItem = function (productId, qtyVal) {
     $.get(`/api/product/${productId}`)
       .then(function (data) {
+        let cartQty = qtyVal;
+        const total = cartQty * data.price;
         const purchaseItem = {
           id: productId,
-          qty: qtyVal,
+          qty: cartQty,
           item: data.name,
           price: data.price,
-          total: qtyVal * data.price
-        }
-        if (data.avail_quantity < qtyVal) {
-          setIsFillOrder(false);
+          total: total.toFixed(2)
         }
         const idList = [];
-        let oldQty = 0;
         for (let i = 0; i < purchaseOrder.length; i++) {
           idList.push(purchaseOrder[i].id);
         }
@@ -148,12 +150,12 @@ $(document).ready(function () {
         } else {
           for (let i in purchaseOrder) {
             if (purchaseOrder[i].id == productId) {
-              oldQty = purchaseOrder[i].qty;
-              const combineQty = parseInt(qtyVal) + parseInt(oldQty);
-              const newTotal = combineQty * data.price;
+              const oldQty = purchaseOrder[i].qty;
+              cartQty = parseInt(qtyVal) + parseInt(oldQty);
+              const newTotal = cartQty * data.price;
               purchaseOrder.splice(i, 1, {
                 id: productId,
-                qty: combineQty,
+                qty: cartQty,
                 item: data.name,
                 price: data.price,
                 total: newTotal.toFixed(2)
@@ -161,7 +163,18 @@ $(document).ready(function () {
             }
           }
         }
+        console.log('cartQty: ' + cartQty);
+        if (data.avail_quantity < cartQty) {
+          setIsFillOrder(false);
+        }
+        console.log('isFillOrder: ' + isFillOrder);
       });
+  }
+
+  const removeMessage = function() {
+    $('#po-results').removeClass('alert alert-info');
+    $('#po-results').removeClass('alert alert-danger');
+    $('#po-results').text('');
   }
 
   const addToCart = function (e) {
@@ -170,7 +183,7 @@ $(document).ready(function () {
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
     const qtyVal = $(`#${qtyRow}`).val();
-
+    removeMessage();
     addCartItem(productId, qtyVal);
   }
 
