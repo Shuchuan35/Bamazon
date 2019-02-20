@@ -47,68 +47,84 @@ $(document).ready(function () {
   }
   getAllProducts();
 
-  const clearPurchaseOrder = function () {
-    for (let i = purchaseOrder.length; i > 0; i--) {
-      purchaseOrder.pop();
-    }
-    setIsFillOrder(true);
-    // console.log('purchaseOrder item: ' + purchaseOrder.length);
+  const calculateTotal = function (price) {
+    totalPrice += parseInt(price);
+    // console.log('totalPrice: ' + totalPrice);
   }
 
-  const updateInventoryQty = function (pId, newData) {
-    // $.put(`/api/products/${pId}`, newData)
-    //   .then(function (data) {
-    //     getAllProducts();
-    //   });
-
+  const updateInventoryQty = function (pId, newData, itemTotal) {
     $.ajax({
       method: 'PUT',
       url: `/api/products/${pId}`,
       data: newData
-    }).then(function(data){
+    }).then(function (data) {
       getAllProducts();
+      calculateTotal(itemTotal);
     });
+    // $.put(`/api/products/${pId}`, newData)
+    //   .then(function (data) {
+    //     getAllProducts();
+    //   });
   }
-
 
   const fillOrder = function () {
     for (let i = 0; i < purchaseOrder.length; i++) {
       const poId = purchaseOrder[i].id;
       const poQty = purchaseOrder[i].qty;
+      const itemTotal = purchaseOrder[i].total;
       $.get(`/api/product/${poId}`)
         .then(function (data) {
           const newQty = parseInt(data.avail_quantity) - parseInt(poQty);
-          // totalPrice = parseInt(totalPrice) + parseFloat(purchaseOrder[i].total);
           const newProductData = {
             name: data.name,
             department: data.department,
             price: data.price,
             avail_quantity: newQty
           };
-          updateInventoryQty(poId, newProductData);
+          updateInventoryQty(poId, newProductData, itemTotal);
         });
     }
+  }
+
+  const resetPurchaseOrder = function () {
+    for (let i = purchaseOrder.length; i > 0; i--) {
+      purchaseOrder.pop();
+    }
+    totalPrice = 0;
+    setIsFillOrder(true);
+    // console.log('purchaseOrder item: ' + purchaseOrder.length);
+  }
+  
+  const displayMessage = function() {
+    $('#po-results').removeClass('alert alert-danger');
+    $('#po-results').addClass('alert alert-info');
+    $('#po-results').text(`Thank you for your order! Your order total is $${totalPrice}!`);
+    resetPurchaseOrder();
   }
 
   const validateOrder = function (e) {
     e.preventDefault();
     if (isFillOrder) {
       fillOrder();
-      $('#po-results').removeClass('alert alert-danger');
-      $('#po-results').addClass('alert alert-info');
-      $('#po-results').text(`Thank you for your order! Please see email for shipping details!`);
-      clearPurchaseOrder();
+      setTimeout(displayMessage, 500);
     } else {
       $('#po-results').removeClass('alert alert-info');
       $('#po-results').addClass('alert alert-danger');
       $('#po-results').text('Insufficient quantity!');
-      clearPurchaseOrder();
+      resetPurchaseOrder();
     }
+  }
+
+  const clearMessage = function () {
+    $('#po-results').removeClass('alert alert-info');
+    $('#po-results').removeClass('alert alert-danger');
+    $('#po-results').text('');
   }
 
   const viewCart = function (e) {
     e.preventDefault();
     $('#purchase-order').empty();
+    clearMessage();
 
     for (let i = 0; i < purchaseOrder.length; i++) {
       $('#purchase-order').append(`<tr>
@@ -119,10 +135,6 @@ $(document).ready(function () {
       <td>${purchaseOrder[i].total}</td>
       </tr>`);
     }
-  }
-
-  const addToTotalPrice = function(price) {
-    totalPrice += parseInt(price);
   }
 
   const setIsFillOrder = function (fill) {
@@ -163,18 +175,12 @@ $(document).ready(function () {
             }
           }
         }
-        console.log('cartQty: ' + cartQty);
+        // console.log('cartQty: ' + cartQty);
         if (data.avail_quantity < cartQty) {
           setIsFillOrder(false);
         }
-        console.log('isFillOrder: ' + isFillOrder);
+        // console.log('isFillOrder: ' + isFillOrder);
       });
-  }
-
-  const removeMessage = function() {
-    $('#po-results').removeClass('alert alert-info');
-    $('#po-results').removeClass('alert alert-danger');
-    $('#po-results').text('');
   }
 
   const addToCart = function (e) {
@@ -183,7 +189,7 @@ $(document).ready(function () {
     const cartVal = $(this).attr('cart-name');
     const qtyRow = `qtyRow${cartVal.substring(4)}`;
     const qtyVal = $(`#${qtyRow}`).val();
-    removeMessage();
+
     addCartItem(productId, qtyVal);
   }
 
