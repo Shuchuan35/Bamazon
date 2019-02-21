@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bamazon Manager View</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script> -->
+    <script src="/js/manager.js"></script>
+</head>
+
+<body>
+    <!-- <nav class="navbar navbar-light bg-light justify-content-between">
+        <a class="navbar-brand">Bamazon</a>
+        <form class="form-inline">
+            <button type="button" class="btn btn-outline-info my-2 my-sm-0" id="view-cart" data-toggle="modal"
+                data-target="#cart-modal">View Cart</button>
+        </form>
+    </nav> -->
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link" href="/">Home</a>
+                <a class="nav-item nav-link" href="/manager">Manaager</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <br>
+        <div class="row">
+            <div class="col-3">
+                <div class="list-group list-group-flush">
+                    <a id="view-all" href="/manager" class="list-group-item">View All Products</a>
+                    <a id="view-low" href="/inventory" class="list-group-item">View Low Inventory</a>
+                    <a id="add-new" href="/new-product" class="list-group-item">Add New Product</a>
+                </div>
+            </div>
+            <div class="col-9">
+                <section id="all-products-view">
+                    <table class="table">
+                        <thead class="bg-info">
+                            <tr class="text-center">
+                                <th scope="col">Item ID</th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Available Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-view">
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>

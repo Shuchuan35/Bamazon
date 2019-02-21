@@ -22,12 +22,5 @@ db.sequelize.sync().then(function(){
   app.listen(PORT, function(){
     console.log(`App is now listening on PORT ${PORT}`)
   });
-
-  // db.Product.findAll({})
-  // .then(function(data) {
-  //   console.log(JSON.stringify(data,null,2));
-  // }).catch(function(error){
-  //   console.log('Error:', error);
-  // });
   
 });

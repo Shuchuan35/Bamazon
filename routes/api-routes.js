@@ -3,11 +3,10 @@ const Op = db.Sequelize.Op;
 
 // Routes
 module.exports = function (app) {
-  // console.log('Hi there!...');
   // GET route for getting all of the products
   app.get('/api/products', function (req, res) {
     db.Product.findAll({}).then(function (dbProduct) {
-      console.log('=======findAll===========');
+      // console.log('=======findAll===========');
       res.json(dbProduct);
     }).catch(function (error) {
       res.json({ error: error });
@@ -16,8 +15,7 @@ module.exports = function (app) {
 
   app.get('/api/products/:ids', function (req, res) {
     const param = req.param('ids');
-    console.log('=======param=======');
-    console.log(param);
+    // console.log(param);
     db.Product.findAll({
       where: {
         id:{
@@ -25,7 +23,7 @@ module.exports = function (app) {
         }
       }
     }).then(function (dbProduct) {
-      console.log('=======findAll id IN array===========');
+      // console.log('=======findAll id IN array===========');
       res.json(dbProduct);
     }).catch(function (error) {
       res.json({ error: error });
@@ -65,6 +63,20 @@ module.exports = function (app) {
       }).catch(function (error) {
         res.json({ error: error });
       });
+  });
+
+  app.get('/api/inventories', function (req, res) {
+    db.Product.findAll({
+      where: {
+        avail_quantity: {
+          [Op.lt] : 5
+        }
+      }
+    }).then(function (dbProduct) {
+      res.json(dbProduct);
+    }).catch(function (error) {
+      res.json({ error: error });
+    });
   });
 
 };
