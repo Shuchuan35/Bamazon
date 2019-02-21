@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Shuchuan35/Bamazon#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "sequelize": "^4.42.0"
   }
 }
