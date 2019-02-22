@@ -125,7 +125,7 @@ $(document).ready(function () {
     e.preventDefault();
     $('#purchase-order').empty();
     clearMessage();
-
+  
     for (let i = 0; i < purchaseOrder.length; i++) {
       $('#purchase-order').append(`<tr>
       <th scope="row">${i + 1}</th>
