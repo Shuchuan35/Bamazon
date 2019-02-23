@@ -19,7 +19,7 @@ $(function () {
               <td>${products[i].name}</td>
               <td>${products[i].price}</td>
               <td class="text-center">${products[i].avail_quantity}</td>
-              <td class="text-center"><input type="text" id="qty${i + 1}"></td>
+              <td class="text-center"><input type="number" min="0" id="qty${i + 1}"></td>
               <td><button class="btn btn-warning addButton" addId="add${i + 1}" 
                 pId="${products[i].id}" pName="${products[i].name}" pPrice="${products[i].price}"
                 pDepartment="${products[i].department}" pQty="${products[i].avail_quantity}">
@@ -65,7 +65,7 @@ $(function () {
     }
     $('#add-product').on('click', postProduct);
 
-    const showReplenish = function (e) {
+    const addToInventoryQty = function (e) {
         e.preventDefault();
         $('#replenish-order').empty();
 
@@ -95,6 +95,6 @@ $(function () {
             getLowInventory();
         });
     }
-    $(this).on('click', '.addButton', showReplenish);
+    $(this).on('click', '.addButton', addToInventoryQty);
 });
 

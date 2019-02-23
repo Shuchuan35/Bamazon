@@ -10,7 +10,7 @@ $(document).ready(function () {
       const productRow = $('<tr>').addClass('productRow');
 
       const qtyCol = $('<th>');
-      qtyCol.append(`<input type="text" id="qtyRow${i + 1}">`);
+      qtyCol.append(`<input type="number" min="1" id="qtyRow${i + 1}">`);
       productRow.append(qtyCol);
 
       const productCol = $('<td>');
