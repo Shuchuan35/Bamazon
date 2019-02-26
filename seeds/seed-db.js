@@ -59,6 +59,7 @@ db.sequelize.sync().then(function() {
     avail_quantity: 100
   }]).then(function(){
     console.log('Data successfully added!');
+    db.sequelize.close();
   }).catch(function(error) {
     console.log('Error', error)
   });
