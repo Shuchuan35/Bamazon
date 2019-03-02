@@ -121,7 +121,7 @@ $(document).ready(function () {
   const insufficientQty = function (qty, qtyVal) {
     $('#po-results').removeClass('alert alert-info');
     $('#po-results').addClass('alert alert-danger');
-  $('#po-results').html(`<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i> 
+    $('#po-results').html(`<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i> 
    Insufficient quantity! Product has ${qty} in stock, your ordered ${qtyVal}. 
   Please adjust your order quantity before proceed to check out.`);
   }
