@@ -118,55 +118,54 @@ $(document).ready(function () {
   }
   $('#view-cart').on('click', viewCart);
 
-  const insufficientQty = function (qty, cartQty) {
+  const insufficientQty = function (qty, qtyVal) {
     $('#po-results').removeClass('alert alert-info');
     $('#po-results').addClass('alert alert-danger');
-    $('#po-results').text(`Insufficient quantity! Only ${qty} in stock, your ordered ${cartQty}. 
-    Please adjust your order quantity before proceed.`);
+  $('#po-results').html(`<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i> 
+   Insufficient quantity! Product has ${qty} in stock, your ordered ${qtyVal}. 
+  Please adjust your order quantity before proceed to check out.`);
+  }
+
+  const addPurchaseOrderItem = function (data, productId, qtyVal, purchaseItem) {
+    const idList = [];
+    for (let i = 0; i < purchaseOrder.length; i++) {
+      idList.push(purchaseOrder[i].id);
+    }
+    if (!idList.includes(productId)) {
+      purchaseOrder.push(purchaseItem);
+    } else {
+      for (let i in purchaseOrder) {
+        if (purchaseOrder[i].id == productId) {
+          const oldQty = purchaseOrder[i].qty;
+          qtyVal = parseInt(qtyVal) + parseInt(oldQty);
+          if (data.avail_quantity < qtyVal) {
+            insufficientQty(data.avail_quantity, qtyVal);
+          } else {
+            const newTotal = qtyVal * data.price;
+            purchaseItem.qty = qtyVal;
+            purchaseItem.total = newTotal.toFixed(2);
+            purchaseOrder.splice(i, 1, purchaseItem);
+          }
+        }
+      }
+    }
   }
 
   const addCartItem = function (productId, qtyVal) {
     $.get(`/api/product/${productId}`)
       .then(function (data) {
-        let cartQty = qtyVal;
-        const total = cartQty * data.price;
-        const purchaseItem = {
-          id: productId,
-          qty: cartQty,
-          item: data.name,
-          price: data.price,
-          total: total.toFixed(2)
-        }
-        if (data.avail_quantity < cartQty) {
-          insufficientQty(data.avail_quantity, cartQty);
+        if (data.avail_quantity < qtyVal) {
+          insufficientQty(data.avail_quantity, qtyVal);
         } else {
-          const idList = [];
-          for (let i = 0; i < purchaseOrder.length; i++) {
-            idList.push(purchaseOrder[i].id);
+          const total = qtyVal * data.price;
+          const purchaseItem = {
+            id: productId,
+            qty: qtyVal,
+            item: data.name,
+            price: data.price,
+            total: total.toFixed(2)
           }
-          if (!idList.includes(productId)) {
-            purchaseOrder.push(purchaseItem);
-          } else {
-            for (let i in purchaseOrder) {
-              if (purchaseOrder[i].id == productId) {
-                const oldQty = purchaseOrder[i].qty;
-                cartQty = parseInt(qtyVal) + parseInt(oldQty);
-                const newTotal = cartQty * data.price;
-
-                if (data.avail_quantity < cartQty) {
-                  insufficientQty(data.avail_quantity, cartQty);
-                } else {
-                  purchaseOrder.splice(i, 1, {
-                    id: productId,
-                    qty: cartQty,
-                    item: data.name,
-                    price: data.price,
-                    total: newTotal.toFixed(2)
-                  });
-                }
-              }
-            }
-          }
+          addPurchaseOrderItem(data, productId, qtyVal, purchaseItem);
         }
       });
   }
