@@ -5,7 +5,15 @@ const Op = db.Sequelize.Op;
 module.exports = function (app) {
   // GET route for getting all of the products
   app.get('/api/products', function (req, res) {
-    db.Product.findAll({}).then(function (dbProduct) {
+    let filter;
+    if (req.query.ids) {
+      filter = {
+        where: {
+          id: req.query.ids.split(",")
+        }
+      }
+    }
+    db.Product.findAll(filter).then(function (dbProduct) {
       // console.log('=======findAll===========');
       res.json(dbProduct);
     }).catch(function (error) {
@@ -14,12 +22,11 @@ module.exports = function (app) {
   });
 
   app.get('/api/products/:ids', function (req, res) {
-    const param = req.param('ids');
-    // console.log(param);
+    // console.log(typeof req.params.ids, typeof ids);
     db.Product.findAll({
       where: {
         id:{
-          [Op.in]: [req.param("ids")]
+          [Op.in]: req.params.ids.split(",")
         }
       }
     }).then(function (dbProduct) {
