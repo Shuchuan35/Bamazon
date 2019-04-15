@@ -30,7 +30,6 @@ module.exports = function (app) {
         }
       }
     }).then(function (dbProduct) {
-      // console.log('=======findAll id IN array===========');
       res.json(dbProduct);
     }).catch(function (error) {
       res.json({ error: error });

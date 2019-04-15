@@ -12,24 +12,21 @@ $(document).ready(function () {
       qtyCol.append(`<input type="number" min="1" id="qtyRow${i + 1}">`);
       productRow.append(qtyCol);
 
-      const productCol = $('<td>');
-      productCol.text(`${products[i].name}`);
+      const productCol = $('<td>').text(`${products[i].name}`);
       productRow.append(productCol);
 
-      const priceCol = $('<td>');
-      priceCol.text(`${products[i].price}`);
+      const priceCol = $('<td>').text(`${products[i].price}`);
       productRow.append(priceCol);
 
-      const avilQtyCol = $('<td>');
-      avilQtyCol.text(`${products[i].avail_quantity}`);
+      const avilQtyCol = $('<td>').text(`${products[i].avail_quantity}`);
       productRow.append(avilQtyCol);
 
-      const cartCol = $('<td>');
       const cartButton = $('<button>').addClass('btn btn-warning cart');
       cartButton.attr('cart-name', `cart${i + 1}`);
       cartButton.attr('product-id', `${products[i].id}`);
       cartButton.text('Add to Cart');
-      cartCol.append(cartButton);
+      
+      const cartCol = $('<td>').append(cartButton);
       productRow.append(cartCol);
 
       $('#product-details').append(productRow);
