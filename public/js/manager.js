@@ -1,4 +1,5 @@
 $(function () {
+    // display all available sales products
     const render = function (products, parentId) {
         $(parentId).empty();
         for (let i = 0; i < products.length; i++) {
@@ -57,13 +58,16 @@ $(function () {
         }
         $.post('/api/products', product)
             .then(function (data) {
+                $('#message').addClass('alert alert-info')
+                    .text('New Product Added Successfully!')
+                    .fadeIn('slow')
+                    .fadeOut('slow');
                 $('#product').val('');
                 $('#department').val('');
                 $('#price').val('');
                 $('#quantity').val('');
             });
     }
-    $('#add-product').on('click', postProduct);
 
     const addToInventoryQty = function (e) {
         e.preventDefault();
@@ -84,7 +88,7 @@ $(function () {
             department: pDepartment,
             price: pPrice,
             avail_quantity: totalQty
-          };
+        };
         $.ajax({
             method: 'PUT',
             url: `/api/products/${pId}`,
@@ -95,6 +99,12 @@ $(function () {
             getLowInventory();
         });
     }
+
+    //==================================
+    // Event Listeners
+    //==================================
+
     $(this).on('click', '.addButton', addToInventoryQty);
+    $('#add-product').on('click', postProduct);
 });
 
