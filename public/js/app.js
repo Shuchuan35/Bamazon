@@ -8,26 +8,40 @@ $(document).ready(function () {
       // console.log(`${products[i].name}`);
       const productRow = $('<tr>').addClass('productRow');
 
-      const qtyCol = $('<th>');
-      qtyCol.append(`<input type="number" min="1" id="qtyRow${i + 1}">`);
-      productRow.append(qtyCol);
+      const input = $('<input>').attr({
+        type: 'number',
+        min: 1,
+        id: `${products[i].id}`// `qtyRow${i + 1}`
+      });
 
-      const productCol = $('<td>').text(`${products[i].name}`);
-      productRow.append(productCol);
+      // const qtyCol = $('<th>');
+      // qtyCol.append(`<input type="number" min="1" id="qtyRow${i + 1}">`);
+      // productRow.append(qtyCol);
 
-      const priceCol = $('<td>').text(`${products[i].price}`);
-      productRow.append(priceCol);
+      // const productCol = $('<td>').text(`${products[i].name}`);
+      // productRow.append(productCol);
 
-      const avilQtyCol = $('<td>').text(`${products[i].avail_quantity}`);
-      productRow.append(avilQtyCol);
+      // const priceCol = $('<td>').text(`${products[i].price}`);
+      // productRow.append(priceCol);
 
-      const cartButton = $('<button>').addClass('btn btn-warning cart');
-      cartButton.attr('cart-name', `cart${i + 1}`);
-      cartButton.attr('product-id', `${products[i].id}`);
-      cartButton.text('Add to Cart');
-      
-      const cartCol = $('<td>').append(cartButton);
-      productRow.append(cartCol);
+      // const avilQtyCol = $('<td>').text(`${products[i].avail_quantity}`);
+      // productRow.append(avilQtyCol);
+
+      const cartButton = $('<button>')
+        .addClass('btn btn-warning cart')
+        .attr('product-id', `${products[i].id}`)
+        .text('Add to Cart');
+
+      // const cartCol = $('<td>').append(cartButton);
+      // productRow.append(cartCol);
+
+      productRow.append(
+        $('<td>').append(input),
+        $('<td>').text(`${products[i].name}`),
+        $('<td>').text(`${products[i].avail_quantity}`),
+        $('<td>').text(`${products[i].price}`),
+        $('<td>').append(cartButton)
+      );
 
       $('#product-details').append(productRow);
     }
@@ -37,9 +51,7 @@ $(document).ready(function () {
     $.ajax({
       method: 'GET',
       url: 'api/products'
-    }).then(function (res) {
-      render(res);
-    });
+    }).then(render);
   }
   getAllProducts();
 
@@ -96,8 +108,6 @@ $(document).ready(function () {
     fillOrder();
     setTimeout(displayMessage, 500);
   }
-  $('#place-order').on('click', processOrder);
-
 
   const viewCart = function (e) {
     e.preventDefault();
@@ -113,7 +123,6 @@ $(document).ready(function () {
       </tr>`);
     }
   }
-  $('#view-cart').on('click', viewCart);
 
   const insufficientQty = function (qty, qtyVal) {
     $('#po-results').removeClass('alert alert-info');
@@ -148,9 +157,11 @@ $(document).ready(function () {
     }
   }
 
-  const addCartItem = function (productId, qtyVal) {
+  const addCartItem = function (productId, qtyVall) {
     $.get(`/api/product/${productId}`)
       .then(function (data) {
+        const qtyVal = $(`#${data.id}`).val();
+        console.log(qtyVal);
         if (data.avail_quantity < qtyVal) {
           insufficientQty(data.avail_quantity, qtyVal);
         } else {
@@ -163,26 +174,33 @@ $(document).ready(function () {
             total: total.toFixed(2)
           }
           addPurchaseOrderItem(data, productId, qtyVal, purchaseItem);
+          $(`#${data.id}`).val('');
         }
       });
   }
 
   const clearMessage = function () {
-    $('#po-results').removeClass('alert alert-info');
-    $('#po-results').removeClass('alert alert-danger');
-    $('#po-results').text('');
+    $('#po-results').removeClass().text('');
   }
 
   const addToCart = function (e) {
     e.preventDefault();
     const productId = $(this).attr('product-id');
-    const cartVal = $(this).attr('cart-name');
-    const qtyRow = `qtyRow${cartVal.substring(4)}`;
-    const qtyVal = $(`#${qtyRow}`).val();
+    // const cartVal = $(this).attr('cart-name');
+    // const qtyRow = `qtyRow${cartVal.substring(4)}`;
+    // const qtyVal = $(`#${qtyRow}`).val();
     clearMessage();
-    addCartItem(productId, qtyVal);
+    addCartItem(productId);
   }
+
+  //==================================
+  // Event Listeners
+  //==================================
+
   $(this).on('click', '.cart', addToCart);
+  $('#view-cart').on('click', viewCart);
+  $('#place-order').on('click', processOrder);
+
 });
 
 
