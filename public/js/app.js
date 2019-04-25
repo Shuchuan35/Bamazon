@@ -1,6 +1,8 @@
 $(document).ready(function () {
+
   const purchaseOrder = [];
   let totalPrice = 0;
+
   const render = function (products) {
     $('#product-details').empty();
 
@@ -11,29 +13,13 @@ $(document).ready(function () {
       const input = $('<input>').attr({
         type: 'number',
         min: 1,
-        id: `${products[i].id}`// `qtyRow${i + 1}`
+        id: `${products[i].id}`
       });
-
-      // const qtyCol = $('<th>');
-      // qtyCol.append(`<input type="number" min="1" id="qtyRow${i + 1}">`);
-      // productRow.append(qtyCol);
-
-      // const productCol = $('<td>').text(`${products[i].name}`);
-      // productRow.append(productCol);
-
-      // const priceCol = $('<td>').text(`${products[i].price}`);
-      // productRow.append(priceCol);
-
-      // const avilQtyCol = $('<td>').text(`${products[i].avail_quantity}`);
-      // productRow.append(avilQtyCol);
 
       const cartButton = $('<button>')
         .addClass('btn btn-warning cart')
         .attr('product-id', `${products[i].id}`)
         .text('Add to Cart');
-
-      // const cartCol = $('<td>').append(cartButton);
-      // productRow.append(cartCol);
 
       productRow.append(
         $('<td>').append(input),
@@ -55,18 +41,13 @@ $(document).ready(function () {
   }
   getAllProducts();
 
-  const calculateOrderTotal = function (price) {
-    totalPrice += parseInt(price);
-  }
-
-  const updateInventoryQty = function (pId, newData, itemTotal) {
+  const updateInventoryQty = function (pId, newData) {
     $.ajax({
       method: 'PUT',
       url: `/api/products/${pId}`,
       data: newData
     }).then(function (data) {
       getAllProducts();
-      calculateOrderTotal(itemTotal);
     });
   }
 
@@ -74,7 +55,7 @@ $(document).ready(function () {
     for (let i = 0; i < purchaseOrder.length; i++) {
       const poId = purchaseOrder[i].id;
       const poQty = purchaseOrder[i].qty;
-      const itemTotal = purchaseOrder[i].total;
+     
       $.get(`/api/product/${poId}`)
         .then(function (data) {
           const newQty = parseInt(data.avail_quantity) - parseInt(poQty);
@@ -84,7 +65,7 @@ $(document).ready(function () {
             price: data.price,
             avail_quantity: newQty
           };
-          updateInventoryQty(poId, newProductData, itemTotal);
+          updateInventoryQty(poId, newProductData);
         });
     }
   }
@@ -93,13 +74,13 @@ $(document).ready(function () {
     for (let i = purchaseOrder.length; i > 0; i--) {
       purchaseOrder.pop();
     }
-    totalPrice = 0;
   }
 
   const displayMessage = function () {
-    $('#po-results').removeClass('alert alert-danger');
-    $('#po-results').addClass('alert alert-info');
-    $('#po-results').text(`Thank you for your order! Your order total is $${totalPrice}!`);
+    totalPrice = purchaseOrder.reduce((acc, cur) => acc + parseFloat(cur.total), 0);
+    $('#po-results').removeClass('alert alert-danger')
+      .addClass('alert alert-info')
+      .text(`Thank you for your order! Your order total is $${totalPrice}!`);
     resetPurchaseOrder();
   }
 
@@ -124,15 +105,15 @@ $(document).ready(function () {
     }
   }
 
-  const insufficientQty = function (qty, qtyVal) {
-    $('#po-results').removeClass('alert alert-info');
-    $('#po-results').addClass('alert alert-danger');
-    $('#po-results').html(`<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i> 
-   Insufficient quantity! Product has ${qty} in stock, your ordered ${qtyVal}. 
+  const insufficientQty = function (qty, requestedQty) {
+    $('#po-results').removeClass('alert alert-info')
+      .addClass('alert alert-danger')
+      .html(`<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i> 
+   Insufficient quantity! Product has ${qty} in stock, your ordered ${requestedQty}. 
   Please adjust your order quantity before proceed to check out.`);
   }
 
-  const addPurchaseOrderItem = function (data, productId, qtyVal, purchaseItem) {
+  const addPurchaseOrderItem = function (data, productId, requestedQty, purchaseItem) {
     const idList = [];
     for (let i = 0; i < purchaseOrder.length; i++) {
       idList.push(purchaseOrder[i].id);
@@ -141,14 +122,16 @@ $(document).ready(function () {
       purchaseOrder.push(purchaseItem);
     } else {
       for (let i in purchaseOrder) {
+
         if (purchaseOrder[i].id == productId) {
           const oldQty = purchaseOrder[i].qty;
-          qtyVal = parseInt(qtyVal) + parseInt(oldQty);
-          if (data.avail_quantity < qtyVal) {
-            insufficientQty(data.avail_quantity, qtyVal);
+          requestedQty = parseInt(requestedQty) + parseInt(oldQty);
+
+          if (data.avail_quantity < requestedQty) {
+            insufficientQty(data.avail_quantity, requestedQty);
           } else {
-            const newTotal = qtyVal * data.price;
-            purchaseItem.qty = qtyVal;
+            const newTotal = requestedQty * data.price;
+            purchaseItem.qty = requestedQty;
             purchaseItem.total = newTotal.toFixed(2);
             purchaseOrder.splice(i, 1, purchaseItem);
           }
@@ -157,23 +140,25 @@ $(document).ready(function () {
     }
   }
 
-  const addCartItem = function (productId, qtyVall) {
+  const addCartItem = function (productId) {
+
     $.get(`/api/product/${productId}`)
       .then(function (data) {
-        const qtyVal = $(`#${data.id}`).val();
-        console.log(qtyVal);
-        if (data.avail_quantity < qtyVal) {
-          insufficientQty(data.avail_quantity, qtyVal);
+        const requestedQty = $(`#${data.id}`).val();
+
+        if (data.avail_quantity < requestedQty) {
+          insufficientQty(data.avail_quantity, requestedQty);
         } else {
-          const total = qtyVal * data.price;
+          const total = requestedQty * data.price;
+
           const purchaseItem = {
             id: productId,
-            qty: qtyVal,
+            qty: requestedQty,
             item: data.name,
             price: data.price,
             total: total.toFixed(2)
           }
-          addPurchaseOrderItem(data, productId, qtyVal, purchaseItem);
+          addPurchaseOrderItem(data, productId, requestedQty, purchaseItem);
           $(`#${data.id}`).val('');
         }
       });
@@ -186,9 +171,7 @@ $(document).ready(function () {
   const addToCart = function (e) {
     e.preventDefault();
     const productId = $(this).attr('product-id');
-    // const cartVal = $(this).attr('cart-name');
-    // const qtyRow = `qtyRow${cartVal.substring(4)}`;
-    // const qtyVal = $(`#${qtyRow}`).val();
+
     clearMessage();
     addCartItem(productId);
   }
