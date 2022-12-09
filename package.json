@@ -14,7 +14,7 @@
   "homepage": "https://github.com/Shuchuan35/Bamazon#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "mysql2": "^1.6.5",
     "sequelize": "^5.3.0"
   }
